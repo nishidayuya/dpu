@@ -31,6 +31,32 @@ Get permanent source code URI with line range:
 $ dpu path_to_code start_line_number end_line_number
 ```
 
+### Emacs integration
+
+Write following code to your `.emacs`, and evaluate it.
+
+```emacs-lisp
+(define-key global-map (kbd "C-x L")
+  (lambda ()
+    (interactive)
+    (message
+     (concat
+      "Copied: "
+      (kill-new
+       (s-chomp
+        (shell-command-to-string
+         (concat
+          "dpu "
+          buffer-file-name
+          " "
+          (number-to-string (line-number-at-pos (region-beginning)))
+          (if mark-active (concat " " (number-to-string (line-number-at-pos (region-end)))))
+          )
+         )))))))
+```
+
+Then type `C-x L` to yank permanent URI. `C-y` to paste it.
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/nishidayuya/dpu .
