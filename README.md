@@ -55,7 +55,7 @@ Write following code to your `.emacs`, and evaluate it.
          )))))))
 ```
 
-Then type `C-x L` to yank permanent URI. `C-y` to paste it.
+Then type `C-x L` to copy permanent URI. `C-y` to paste it.
 
 ## Contributing
 
