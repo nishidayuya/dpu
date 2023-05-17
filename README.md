@@ -7,6 +7,9 @@ $ dpu array.c 4133 4136
 https://github.com/ruby/ruby/blob/v3_2_2/array.c#L4133-L4136
 ```
 
+[![License X11](https://img.shields.io/badge/license-X11-blue.svg)](https://raw.githubusercontent.com/nishidayuya/dpu/master/LICENSE.txt)
+[![Gem Version](https://badge.fury.io/rb/dpu.svg)](https://rubygems.org/gems/dpu)
+
 ## Requirements
 
 - Ruby
