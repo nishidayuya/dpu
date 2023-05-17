@@ -57,6 +57,21 @@ Write following code to your `.emacs`, and evaluate it.
 
 Then type `C-x L` to copy permanent URI. `C-y` to paste it.
 
+### Textbringer integration
+
+```ruby
+define_command(:copy_permanent_uri, doc: "Copy permanent URI") do
+  require "dpu"
+  b = Buffer.current
+  uri = Dpu.determine_permanent_uri(Pathname(b.file_name), b.current_line, nil)
+  KILL_RING.push(uri)
+  Clipboard.copy(uri) if CLIPBOARD_AVAILABLE
+  message("Copied: #{uri}")
+end
+
+GLOBAL_MAP.define_key("\C-xL", :copy_permanent_uri)
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/nishidayuya/dpu .
