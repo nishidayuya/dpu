@@ -51,7 +51,7 @@ module Dpu
 
       md => {account_name:, repository_name:}
       url = GITHUB_REPOSITORY_URI_TEMPLATE % {account_name:, repository_name:}
-      URI(url)
+      return URI(url)
     end
 
     def determine_commit_id(path)
