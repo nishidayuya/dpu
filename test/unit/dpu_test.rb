@@ -3,6 +3,7 @@ require "test_helper"
 class DpuTest < Test::Unit::TestCase
   sub_test_case(".determine_permanent_uri") do
     data(
+      http_uri: "http://github.com/foo_account_name/bar_repository_name.git",
       https_uri: "https://github.com/foo_account_name/bar_repository_name.git",
       ssh_uri: "git@github.com:foo_account_name/bar_repository_name.git",
     )
