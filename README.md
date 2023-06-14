@@ -2,6 +2,7 @@
 
 [![License X11](https://img.shields.io/badge/license-X11-blue.svg)](https://raw.githubusercontent.com/nishidayuya/dpu/master/LICENSE.txt)
 [![Gem Version](https://badge.fury.io/rb/dpu.svg)](https://rubygems.org/gems/dpu)
+[![Build Status](https://github.com/nishidayuya/dpu/workflows/ubuntu/badge.svg)](https://github.com/nishidayuya/dpu/actions?query=workflow%3Aubuntu)
 
 `dpu` command shows us permanent source-code URI.
 
