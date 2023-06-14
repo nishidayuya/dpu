@@ -9,6 +9,7 @@ module Dpu
   class << self
     GITHUB_REPOSITORY_URI_TEMPLATE = "https://github.com/%{account_name}/%{repository_name}"
     REMOTE_URL_PATTERN = [
+      %r{\Agit://github\.com/(?<account_name>[^/]+)/(?<repository_name>.+)(?=\.git)},
       %r{\Ahttps?://github\.com/(?<account_name>[^/]+)/(?<repository_name>.+)(?=\.git)},
       %r{\Agit@github\.com:(?<account_name>[^/]+)/(?<repository_name>.+)(?=\.git)},
     ].then { |patterns|
