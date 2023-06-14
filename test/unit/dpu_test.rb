@@ -106,6 +106,8 @@ class DpuTest < Test::Unit::TestCase
         File.write("file.txt", "A textfile\n")
 
         run_command("git init --quiet")
+        run_command("git config user.email dpu_test@example.org")
+        run_command("git config user.name dpu_test")
         commit_all_files
         tag("v1.0.0")
         run_command(*%W"git remote add origin", remote_url)
