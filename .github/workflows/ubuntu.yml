@@ -1,0 +1,48 @@
+name: ubuntu
+
+on:
+  - push
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby_version:
+          - 3.2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache rubygems
+        uses: actions/cache@v3.2.2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-rubygems-${{ hashFiles('**/{Gemfile,*.gemspec}') }}
+          restore-keys: |
+            ${{ runner.os }}-rubygems-
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby_version }}
+      - name: Install dependencies
+        run: |
+          set -eux
+          gem update --system
+          bundle config path vendor/bundle
+          bundle install --jobs $(nproc) --retry 3
+      - name: Run rake
+        run: bundle exec rake
+      - name: Output versions
+        if: always()
+        run: |
+          set -eux
+          lsb_release --all
+          ruby --version
+          gem --version
+          bundle --version
+      - name: Output gem versions
+        if: always()
+        run: bundle list
+      - name: Output deb package versions
+        if: always()
+        run: dpkg -l
