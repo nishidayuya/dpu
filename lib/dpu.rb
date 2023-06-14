@@ -57,8 +57,10 @@ module Dpu
         return URI(repository_http_or_ssh_url)
       end
 
-      md => {account_name:, repository_name:}
-      url = GITHUB_REPOSITORY_URI_TEMPLATE % {account_name:, repository_name:}
+      url = GITHUB_REPOSITORY_URI_TEMPLATE % {
+        account_name: md[:account_name],
+        repository_name: md[:repository_name],
+      }
       return URI(url)
     end
 
