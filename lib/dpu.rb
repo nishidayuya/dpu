@@ -8,6 +8,14 @@ module Dpu
 
   class << self
     GITHUB_REPOSITORY_URI_TEMPLATE = "https://github.com/%{account_name}/%{repository_name}"
+    REMOTE_URL_PATTERN = [
+      %r{\Agit://github\.com/(?<account_name>[^/]+)/(?<repository_name>.+)(?=\.git)},
+      %r{\Ahttps?://github\.com/(?<account_name>[^/]+)/(?<repository_name>.+)(?=\.git)},
+      %r{\Agit@github\.com:(?<account_name>[^/]+)/(?<repository_name>.+)(?=\.git)},
+      %r{\Assh://git@github\.com/(?<account_name>[^/]+)/(?<repository_name>.+)(?=\.git)},
+    ].then { |patterns|
+      Regexp.union(*patterns)
+    }
 
     def determine_permanent_uri(path, start_line_number, end_line_number)
       relative_path = determine_relative_path(path)
@@ -44,7 +52,7 @@ module Dpu
       stdout = run_command("git remote get-url origin", chdir: path.dirname)
       repository_http_or_ssh_url = stdout.chomp
 
-      md = %r{\Agit@github\.com:(?<account_name>[^/]+)/(?<repository_name>.+)(?=\.git)}.match(repository_http_or_ssh_url)
+      md = REMOTE_URL_PATTERN.match(repository_http_or_ssh_url)
       if !md
         return URI(repository_http_or_ssh_url)
       end
