@@ -7,6 +7,7 @@ class DpuTest < Test::Unit::TestCase
       http_scheme_uri: "http://github.com/foo_account_name/bar_repository_name.git",
       https_scheme_uri: "https://github.com/foo_account_name/bar_repository_name.git",
       ssh_path: "git@github.com:foo_account_name/bar_repository_name.git",
+      ssh_scheme_uri: "ssh://git@github.com/foo_account_name/bar_repository_name.git",
     )
     test("returns permanent URI") do |remote_url|
       create_repository(remote_url) do |repository_path|
