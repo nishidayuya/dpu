@@ -17,9 +17,9 @@ jobs:
         uses: actions/cache@v3.2.2
         with:
           path: vendor/bundle
-          key: ${{ runner.os }}-rubygems-${{ hashFiles('**/{Gemfile,*.gemspec}') }}
+          key: ${{ runner.os }}-rubygems-${{ matrix.ruby_version }}-${{ hashFiles('**/Gemfile') }}-${{ hashFiles('**/*.gemspec') }}
           restore-keys: |
-            ${{ runner.os }}-rubygems-
+            ${{ runner.os }}-rubygems-${{ matrix.ruby_version }}
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
