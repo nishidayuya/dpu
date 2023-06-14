@@ -36,6 +36,7 @@ jobs:
         if: always()
         run: |
           set -eux
+          uname -a
           lsb_release --all
           ruby --version
           gem --version
