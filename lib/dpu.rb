@@ -17,7 +17,7 @@ module Dpu
       Regexp.union(*patterns)
     }
 
-    def determine_permanent_uri(path, start_line_number, end_line_number)
+    def determine_permanent_uri(path, start_line_number = nil, end_line_number = nil)
       relative_path = determine_relative_path(path)
 
       permanent_uri_parts = [

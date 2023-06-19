@@ -13,7 +13,7 @@ class DpuTest < Test::Unit::TestCase
       create_repository(remote_url) do |repository_path|
         assert_equal(
           URI("https://github.com/foo_account_name/bar_repository_name/blob/v1.0.0/file.txt"),
-          Dpu.determine_permanent_uri(repository_path / "file.txt", nil, nil),
+          Dpu.determine_permanent_uri(repository_path / "file.txt"),
         )
       end
     end
@@ -49,7 +49,7 @@ class DpuTest < Test::Unit::TestCase
 
         assert_equal(
           URI("https://github.com/foo_account_name/bar_repository_name/blob/#{commit_id}/file.txt"),
-          Dpu.determine_permanent_uri(file_path, nil, nil),
+          Dpu.determine_permanent_uri(file_path),
         )
       end
     end
@@ -64,11 +64,11 @@ class DpuTest < Test::Unit::TestCase
 
         assert_equal(
           URI("https://github.com/foo_account_name/bar_repository_name/blob/v1.0.0/file.txt"),
-          Dpu.determine_permanent_uri(repository_path / "file.txt", nil, nil),
+          Dpu.determine_permanent_uri(repository_path / "file.txt"),
         )
         assert_equal(
           URI("https://github.com/foo_account_name/bar_repository_name/blob/#{commit_id}/other_file_to_change_commit_id.txt"),
-          Dpu.determine_permanent_uri(other_file_path, nil, nil),
+          Dpu.determine_permanent_uri(other_file_path),
         )
       end
     end
@@ -92,11 +92,11 @@ class DpuTest < Test::Unit::TestCase
 
         assert_equal(
           URI("https://github.com/foo_account_name/bar_repository_name/blob/2.0.0/file.txt"),
-          Dpu.determine_permanent_uri(file_path, nil, nil),
+          Dpu.determine_permanent_uri(file_path),
         )
         assert_equal(
           URI("https://github.com/foo_account_name/bar_repository_name/blob/#{commit_id}/other_file_to_change_commit_id.txt"),
-          Dpu.determine_permanent_uri(other_file_path, nil, nil),
+          Dpu.determine_permanent_uri(other_file_path),
         )
       end
     end
