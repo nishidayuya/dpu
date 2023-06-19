@@ -15,7 +15,11 @@ class Dpu::Cli
       start_line_number = s_start_line_number&.to_i
       end_line_number = s_end_line_number&.to_i
 
-      uri = Dpu.determine_permanent_uri(path, start_line_number, end_line_number)
+      uri = Dpu.determine_permanent_uri(
+        path,
+        start_line_number: start_line_number,
+        end_line_number: end_line_number,
+      )
       puts(uri)
     end
   end

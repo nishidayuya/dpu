@@ -51,8 +51,8 @@ class DpuTest < Test::Unit::TestCase
       create_repository(remote_url) do |repository_path|
         result_uri = Dpu.determine_permanent_uri(
           repository_path / "file.txt",
-          start_line_number,
-          end_line_number,
+          start_line_number: start_line_number,
+          end_line_number: end_line_number,
         )
         assert_equal(expected_fragment, result_uri.fragment, "uri: #{result_uri}")
       end
@@ -70,8 +70,8 @@ class DpuTest < Test::Unit::TestCase
       create_repository(remote_url) do |repository_path|
         result_uri = Dpu.determine_permanent_uri(
           repository_path / "file.txt",
-          start_line_number,
-          end_line_number,
+          start_line_number: start_line_number,
+          end_line_number: end_line_number,
         )
         assert_equal(expected_fragment, result_uri.fragment, "uri: #{result_uri}")
       end
