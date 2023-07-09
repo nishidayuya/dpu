@@ -89,6 +89,7 @@ jobs:
         run: |
           set -eux
           uname -a
+          sw_vers
           ruby --version
           gem --version
           bundle --version
