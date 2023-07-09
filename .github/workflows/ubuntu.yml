@@ -21,31 +21,25 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: kenchan0130/actions-system-info@1.2.0
+        id: system-info
       - name: Cache rubygems
         uses: actions/cache@v3.2.2
         with:
           path: vendor/bundle
-          key: ${{ runner.os }}-rubygems-${{ matrix.ruby_version }}-${{ hashFiles('**/Gemfile') }}-${{ hashFiles('**/*.gemspec') }}
+          key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-rubygems-${{ matrix.ruby_version }}-${{ hashFiles('**/Gemfile') }}-${{ hashFiles('**/*.gemspec') }}
           restore-keys: |
-            ${{ runner.os }}-rubygems-${{ matrix.ruby_version }}
+            ${{ runner.os }}-${{ steps.system-info.outputs.release }}-rubygems-${{ matrix.ruby_version }}
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby_version }}
       - name: Install dependencies
-        if: matrix.os == 'macos'
         run: |
           set -eux
           gem update --system
           bundle config path vendor/bundle
-          bundle install --jobs $(sysctl -n hw.logicalcpu) --retry 3
-      - name: Install dependencies
-        if: matrix.os == 'ubuntu'
-        run: |
-          set -eux
-          gem update --system
-          bundle config path vendor/bundle
-          bundle install --jobs $(nproc) --retry 3
+          bundle install --jobs "${{ steps.system-info.outputs.cpu-core }}" --retry 3
       - name: Run tests
         run: bundle exec rake
       - name: Output versions
