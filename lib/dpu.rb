@@ -82,7 +82,10 @@ module Dpu
 
       content_in_head = path.read
       same_content_version = versions.reverse_each.find { |version|
-        content_in_version, _status = *Open3.capture2(*%W[git show #{version}:#{relative_path_from_repository_root}], chdir: path.dirname, err: "/dev/null")
+        content_in_version, _stderr, _status = *Open3.capture3(
+          *%W[git show #{version}:#{relative_path_from_repository_root}],
+          chdir: path.dirname,
+        )
         content_in_head == content_in_version
       }
       return same_content_version
