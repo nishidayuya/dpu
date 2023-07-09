@@ -13,6 +13,7 @@ jobs:
         os:
           - macos
           - ubuntu
+          - windows
         ruby_version:
           - 3.2
           - 3.1
@@ -36,6 +37,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby_version }}
       - name: Install dependencies
+        shell: bash
         run: |
           set -eux
           gem update --system
@@ -45,6 +47,7 @@ jobs:
         run: bundle exec rake
       - name: Output versions
         if: always()
+        shell: bash
         run: |
           set -eux
           run_if_exist() {
