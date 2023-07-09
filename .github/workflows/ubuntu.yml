@@ -49,20 +49,18 @@ jobs:
       - name: Run tests
         run: bundle exec rake
       - name: Output versions
-        if: always() && matrix.os == 'macos'
+        if: always()
         run: |
           set -eux
+          run_if_exist() {
+            if test "x$(which $1)" != "x"
+            then
+              "$@"
+            fi
+          }
           uname -a
-          sw_vers
-          ruby --version
-          gem --version
-          bundle --version
-      - name: Output versions
-        if: always() && matrix.os == 'ubuntu'
-        run: |
-          set -eux
-          uname -a
-          lsb_release --all
+          run_if_exist sw_vers # macos
+          run_if_exist lsb_release --all # ubuntu
           ruby --version
           gem --version
           bundle --version
