@@ -35,7 +35,7 @@ jobs:
           gem update --system
           bundle config path vendor/bundle
           bundle install --jobs $(nproc) --retry 3
-      - name: Run rake
+      - name: Run tests
         run: bundle exec rake
       - name: Output versions
         if: always()
@@ -82,7 +82,7 @@ jobs:
           gem update --system
           bundle config path vendor/bundle
           bundle install --jobs $(sysctl -n hw.logicalcpu) --retry 3
-      - name: Run rake
+      - name: Run tests
         run: bundle exec rake
       - name: Output versions
         if: always()
