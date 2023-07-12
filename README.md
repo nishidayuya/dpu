@@ -76,6 +76,10 @@ end
 GLOBAL_MAP.define_key("\C-xL", :copy_permanent_uri)
 ```
 
+### Other editor integration
+
+Write pull-request or issue, please!
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/nishidayuya/dpu .
