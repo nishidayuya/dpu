@@ -1,6 +1,7 @@
 require "open3"
 require "pathname"
 require "uri"
+require "version_sorter"
 
 module Dpu
   autoload :Cli, "dpu/cli"
@@ -21,10 +22,13 @@ module Dpu
       path = path_or_link.realpath
       relative_path = determine_relative_path(path)
 
+      version = find_same_content_version(path, relative_path)
+      ref = version&.ascii_only? ? version : determine_commit_id(path)
+
       permanent_uri_parts = [
         determine_repository_uri(path),
         "blob",
-        find_same_content_version(path, relative_path) || determine_commit_id(path),
+        ref,
         relative_path,
       ]
       permanent_uri = URI(permanent_uri_parts.join("/"))
@@ -73,12 +77,7 @@ module Dpu
 
     def find_same_content_version(path, relative_path_from_repository_root)
       stdout = run_command(*%w[git tag --list [0-9]* v[0-9]*], chdir: path.dirname)
-      versions = stdout.each_line(chomp: true).sort_by { |v|
-        comparable_version =
-          v.sub(/\Av/, "").
-            gsub(/[_@]+/, ".") # https://github.com/ruby/ruby/tree/v1_8_5_55%4013008
-        Gem::Version.new(comparable_version)
-      }
+      versions = VersionSorter.sort(stdout.each_line(chomp: true).to_a)
 
       content_in_head = path.read
       same_content_version = versions.reverse_each.find { |version|
