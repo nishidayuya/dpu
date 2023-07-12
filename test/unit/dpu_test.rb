@@ -9,10 +9,23 @@ class DpuTest < Test::Unit::TestCase
       ssh_path: "git@github.com:foo_account_name/bar_repository_name.git",
       ssh_scheme_uri: "ssh://git@github.com/foo_account_name/bar_repository_name.git",
     )
-    test("returns permanent URI") do |remote_url|
+    test("returns permanent URI of GitHub") do |remote_url|
       create_repository(remote_url) do |repository_path|
         assert_equal(
           URI("https://github.com/foo_account_name/bar_repository_name/blob/v1.0.0/file.txt"),
+          Dpu.determine_permanent_uri(repository_path / "file.txt"),
+        )
+      end
+    end
+
+    data(
+      https_scheme_uri: "https://git.sr.ht/~foo_account_name/bar_repository_name",
+      ssh_path: "git@git.sr.ht:~foo_account_name/bar_repository_name",
+    )
+    test("returns permanent URI of SourceHut") do |remote_url|
+      create_repository(remote_url) do |repository_path|
+        assert_equal(
+          URI("https://git.sr.ht/~foo_account_name/bar_repository_name/tree/v1.0.0/file.txt"),
           Dpu.determine_permanent_uri(repository_path / "file.txt"),
         )
       end
@@ -24,9 +37,28 @@ class DpuTest < Test::Unit::TestCase
       with_both_line_numbers: [1, 2, "L1-L2"],
       with_same_line_numbers: [1, 1, "L1"],
     )
-    test("returns with line number fragment") do |data|
+    test("returns with line number fragment for GitHub") do |data|
       start_line_number, end_line_number, expected_fragment = *data
       remote_url = "git@github.com:foo_account_name/bar_repository_name.git"
+      create_repository(remote_url) do |repository_path|
+        result_uri = Dpu.determine_permanent_uri(
+          repository_path / "file.txt",
+          start_line_number,
+          end_line_number,
+        )
+        assert_equal(expected_fragment, result_uri.fragment, "uri: #{result_uri}")
+      end
+    end
+
+    data(
+      with_no_line_numbers: [nil, nil, nil],
+      with_start_line_number: [1, nil, "L1"],
+      with_both_line_numbers: [1, 2, "L1-2"],
+      with_same_line_numbers: [1, 1, "L1"],
+    )
+    test("returns with line number fragment for SourceHut") do |data|
+      start_line_number, end_line_number, expected_fragment = *data
+      remote_url = "git@git.sr.ht:~foo_account_name/bar_repository_name"
       create_repository(remote_url) do |repository_path|
         result_uri = Dpu.determine_permanent_uri(
           repository_path / "file.txt",
