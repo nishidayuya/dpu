@@ -3,14 +3,22 @@ require "test_helper"
 class DpuTest < Test::Unit::TestCase
   sub_test_case(".determine_permanent_uri") do
     data(
-      git_scheme_uri: "git://github.com/foo_account_name/bar_repository_name.git",
-      http_scheme_uri: "http://github.com/foo_account_name/bar_repository_name.git",
-      https_scheme_uri: "https://github.com/foo_account_name/bar_repository_name.git",
-      ssh_path: "git@github.com:foo_account_name/bar_repository_name.git",
-      ssh_scheme_uri: "ssh://git@github.com/foo_account_name/bar_repository_name.git",
+      git_scheme_uri: "git://github.com/foo_account_name/bar_repository_name",
+      http_scheme_uri: "http://github.com/foo_account_name/bar_repository_name",
+      https_scheme_uri: "https://github.com/foo_account_name/bar_repository_name",
+      ssh_path: "git@github.com:foo_account_name/bar_repository_name",
+      ssh_scheme_uri: "ssh://git@github.com/foo_account_name/bar_repository_name",
     )
     test("returns permanent URI of GitHub") do |remote_url|
       create_repository(remote_url) do |repository_path|
+        assert_equal(
+          URI("https://github.com/foo_account_name/bar_repository_name/blob/v1.0.0/file.txt"),
+          Dpu.determine_permanent_uri(repository_path / "file.txt"),
+        )
+      end
+
+      remote_url_with_dot_git = "#{remote_url}.git"
+      create_repository(remote_url_with_dot_git) do |repository_path|
         assert_equal(
           URI("https://github.com/foo_account_name/bar_repository_name/blob/v1.0.0/file.txt"),
           Dpu.determine_permanent_uri(repository_path / "file.txt"),
