@@ -83,5 +83,6 @@ module Dpu
 end
 
 require "dpu/scm_service"
+require "dpu/scm_service/base"
 require "dpu/scm_service/github"
 require "dpu/scm_service/sourcehut"

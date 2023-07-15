@@ -1,4 +1,4 @@
-class Dpu::ScmService::Sourcehut
+class Dpu::ScmService::Sourcehut < Dpu::ScmService::Base
   REPOSITORY_URI_TEMPLATE = "https://git.sr.ht/~%{account_name}/%{repository_name}"
 
   REMOTE_URL_PATTERN = [
@@ -8,26 +8,9 @@ class Dpu::ScmService::Sourcehut
     Regexp.union(*patterns)
   }
 
-  def determine_repository_uri(repository_http_or_ssh_url)
-    md = REMOTE_URL_PATTERN.match(repository_http_or_ssh_url)
-    return nil if !md
+  REF_PREFIX = "tree"
 
-    url = REPOSITORY_URI_TEMPLATE % {
-      account_name: md[:account_name],
-      repository_name: md[:repository_name],
-    }
-    return URI(url)
-  end
-
-  def ref_prefix
-    return "tree"
-  end
-
-  def determine_fragment(start_line_number, end_line_number)
-    return nil if !start_line_number
-    return "L#{start_line_number}" if !end_line_number || start_line_number == end_line_number
-    return "L#{start_line_number}-#{end_line_number}"
-  end
+  START_AND_END_LINE_NUMBER_FRAGMENT_TEMPLATE = "L%{start_line_number}-%{end_line_number}"
 end
 
 Dpu::SCM_SERVICES << Dpu::ScmService::Sourcehut.new
