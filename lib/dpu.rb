@@ -45,16 +45,16 @@ module Dpu
       relative_path = determine_relative_path(path)
 
       remote_url = get_remote_url(path)
-      vcs_service = determine_vcs_service(remote_url)
+      scm_service = determine_scm_service(remote_url)
 
       permanent_uri_parts = [
-        determine_repository_uri(vcs_service, remote_url),
-        REF_PREFIX[vcs_service],
+        determine_repository_uri(scm_service, remote_url),
+        REF_PREFIX[scm_service],
         find_same_content_version(path, relative_path) || determine_commit_id(path),
         relative_path,
       ]
       permanent_uri = URI(permanent_uri_parts.join("/"))
-      permanent_uri.fragment = determine_fragment(vcs_service, start_line_number, end_line_number)
+      permanent_uri.fragment = determine_fragment(scm_service, start_line_number, end_line_number)
       return permanent_uri
     end
 
@@ -79,7 +79,7 @@ module Dpu
       return run_command("git remote get-url origin", chdir: path.dirname).chomp
     end
 
-    def determine_vcs_service(repository_http_or_ssh_url)
+    def determine_scm_service(repository_http_or_ssh_url)
       if GITHUB_REMOTE_URL_PATTERN.match?(repository_http_or_ssh_url)
         return :github
       end
@@ -87,16 +87,16 @@ module Dpu
         return :sourcehut
       end
 
-      raise "unknown VCS service: #{repository_http_or_ssh_url}"
+      raise "unknown SCM service: #{repository_http_or_ssh_url}"
     end
 
-    def determine_repository_uri(vcs_service, repository_http_or_ssh_url)
-      md = REMOTE_URL_PATTERNS[vcs_service].match(repository_http_or_ssh_url)
+    def determine_repository_uri(scm_service, repository_http_or_ssh_url)
+      md = REMOTE_URL_PATTERNS[scm_service].match(repository_http_or_ssh_url)
       if !md
         return URI(repository_http_or_ssh_url)
       end
 
-      url = REPOSITORY_URI_TEMPLATES[vcs_service] % {
+      url = REPOSITORY_URI_TEMPLATES[scm_service] % {
         account_name: md[:account_name],
         repository_name: md[:repository_name],
       }
@@ -124,11 +124,11 @@ module Dpu
       return same_content_version
     end
 
-    def determine_fragment(vcs_service, start_line_number, end_line_number)
+    def determine_fragment(scm_service, start_line_number, end_line_number)
       return nil if !start_line_number
       return "L#{start_line_number}" if !end_line_number || start_line_number == end_line_number
-      return "L#{start_line_number}-L#{end_line_number}" if vcs_service == :github
-      return "L#{start_line_number}-#{end_line_number}" if vcs_service == :sourcehut
+      return "L#{start_line_number}-L#{end_line_number}" if scm_service == :github
+      return "L#{start_line_number}-#{end_line_number}" if scm_service == :sourcehut
     end
   end
 end
