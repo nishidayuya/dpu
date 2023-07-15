@@ -1,0 +1,2 @@
+module Dpu::ScmService
+end
