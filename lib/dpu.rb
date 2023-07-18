@@ -22,13 +22,10 @@ module Dpu
       path = path_or_link.realpath
       relative_path = determine_relative_path(path)
 
-      version = find_same_content_version(path, relative_path)
-      ref = version&.ascii_only? ? version : determine_commit_id(path)
-
       permanent_uri_parts = [
         determine_repository_uri(path),
         "blob",
-        ref,
+        find_same_content_version(path, relative_path) || determine_commit_id(path),
         relative_path,
       ]
       permanent_uri = URI(permanent_uri_parts.join("/"))
@@ -77,7 +74,7 @@ module Dpu
 
     def find_same_content_version(path, relative_path_from_repository_root)
       stdout = run_command(*%w[git tag --list [0-9]* v[0-9]*], chdir: path.dirname)
-      versions = VersionSorter.sort(stdout.each_line(chomp: true).to_a)
+      versions = VersionSorter.sort(stdout.each_line(chomp: true).select(&:ascii_only?))
 
       content_in_head = path.read
       same_content_version = versions.reverse_each.find { |version|
