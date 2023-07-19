@@ -140,6 +140,34 @@ class DpuTest < Test::Unit::TestCase
         )
       end
     end
+
+    test("malformed version tag can be handled") do
+      remote_url = "git@github.com:foo_account_name/bar_repository_name.git"
+      create_repository(remote_url) do |repository_path|
+        file_path = repository_path / "file.txt"
+        file_path.open("a") do |f|
+          f.puts("additional text")
+        end
+        commit_all_files(repository_path)
+        tag("日本語", repository_path)
+
+        other_file_path = repository_path / "other_file_to_change_commit_id.txt"
+        other_file_path.write("test\n")
+        commit_all_files(repository_path)
+        tag("1.0.0⚪︎", repository_path)
+
+        commit_id = fetch_commit_id(repository_path)
+
+        assert_equal(
+          URI("https://github.com/foo_account_name/bar_repository_name/blob/#{commit_id}/file.txt"),
+          Dpu.determine_permanent_uri(file_path),
+        )
+        assert_equal(
+          URI("https://github.com/foo_account_name/bar_repository_name/blob/#{commit_id}/other_file_to_change_commit_id.txt"),
+          Dpu.determine_permanent_uri(other_file_path),
+        )
+      end
+    end
   end
 
   private
