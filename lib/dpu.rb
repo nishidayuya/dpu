@@ -1,6 +1,7 @@
 require "open3"
 require "pathname"
 require "uri"
+
 require "version_sorter"
 
 module Dpu
