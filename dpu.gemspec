@@ -24,6 +24,9 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency("version_sorter")
+
   spec.add_development_dependency("debug")
+  spec.add_development_dependency("rake")
   spec.add_development_dependency("test-unit")
 end
