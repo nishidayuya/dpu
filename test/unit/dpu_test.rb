@@ -154,7 +154,7 @@ class DpuTest < Test::Unit::TestCase
         other_file_path = repository_path / "other_file_to_change_commit_id.txt"
         other_file_path.write("test\n")
         commit_all_files(repository_path)
-        tag("1.0.0⚪︎", repository_path)
+        tag("1.0.0⚪", repository_path)
 
         commit_id = fetch_commit_id(repository_path)
 
