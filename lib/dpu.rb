@@ -8,53 +8,24 @@ module Dpu
   autoload :Cli, "dpu/cli"
   autoload :VERSION, "dpu/vesion"
 
+  SCM_SERVICES = []
+
   class << self
-    GITHUB_REPOSITORY_URI_TEMPLATE = "https://github.com/%{account_name}/%{repository_name}"
-    SOURCEHUT_REPOSITORY_URI_TEMPLATE = "https://git.sr.ht/~%{account_name}/%{repository_name}"
-    REPOSITORY_URI_TEMPLATES = {
-      github: GITHUB_REPOSITORY_URI_TEMPLATE,
-      sourcehut: SOURCEHUT_REPOSITORY_URI_TEMPLATE,
-    }
-
-    GITHUB_REMOTE_URL_PATTERN = [
-      %r{\Agit://github\.com/(?<account_name>[^/]+)/(?<repository_name>[^/]+(?=\.git)|[^/]+)},
-      %r{\Ahttps?://github\.com/(?<account_name>[^/]+)/(?<repository_name>[^/]+(?=\.git)|[^/]+)},
-      %r{\Agit@github\.com:(?<account_name>[^/]+)/(?<repository_name>[^/]+(?=\.git)|[^/]+)},
-      %r{\Assh://git@github\.com/(?<account_name>[^/]+)/(?<repository_name>[^/]+(?=\.git)|[^/]+)},
-    ].then { |patterns|
-      Regexp.union(*patterns)
-    }
-    SOURCEHUT_REMOTE_URL_PATTERN = [
-      %r{\Ahttps://git\.sr\.ht/\~(?<account_name>[^/]+)/(?<repository_name>.+)},
-      %r{\Agit@git\.sr\.ht:\~(?<account_name>[^/]+)/(?<repository_name>.+)},
-    ].then { |patterns|
-      Regexp.union(*patterns)
-    }
-    REMOTE_URL_PATTERNS = {
-      github: GITHUB_REMOTE_URL_PATTERN,
-      sourcehut: SOURCEHUT_REMOTE_URL_PATTERN,
-    }
-
-    REF_PREFIX = {
-      github: 'blob',
-      sourcehut: 'tree',
-    }
-
     def determine_permanent_uri(path_or_link, start_line_number = nil, end_line_number = nil)
       path = path_or_link.realpath
       relative_path = determine_relative_path(path)
 
       remote_url = get_remote_url(path)
-      vcs_service = determine_vcs_service(remote_url)
+      scm_service, repository_uri = determine_scm_service_and_repository_uri(remote_url)
 
       permanent_uri_parts = [
-        determine_repository_uri(vcs_service, remote_url),
-        REF_PREFIX[vcs_service],
+        repository_uri,
+        scm_service.ref_prefix,
         find_same_content_version(path, relative_path) || determine_commit_id(path),
         relative_path,
       ]
       permanent_uri = URI(permanent_uri_parts.join("/"))
-      permanent_uri.fragment = determine_fragment(vcs_service, start_line_number, end_line_number)
+      permanent_uri.fragment = scm_service.determine_fragment(start_line_number, end_line_number)
       return permanent_uri
     end
 
@@ -79,28 +50,13 @@ module Dpu
       return run_command("git remote get-url origin", chdir: path.dirname).chomp
     end
 
-    def determine_vcs_service(repository_http_or_ssh_url)
-      if GITHUB_REMOTE_URL_PATTERN.match?(repository_http_or_ssh_url)
-        return :github
-      end
-      if SOURCEHUT_REMOTE_URL_PATTERN.match?(repository_http_or_ssh_url)
-        return :sourcehut
+    def determine_scm_service_and_repository_uri(repository_http_or_ssh_url)
+      SCM_SERVICES.each do |scm_service|
+        repository_uri = scm_service.determine_repository_uri(repository_http_or_ssh_url)
+        return scm_service, repository_uri if repository_uri
       end
 
-      raise "unknown VCS service: #{repository_http_or_ssh_url}"
-    end
-
-    def determine_repository_uri(vcs_service, repository_http_or_ssh_url)
-      md = REMOTE_URL_PATTERNS[vcs_service].match(repository_http_or_ssh_url)
-      if !md
-        return URI(repository_http_or_ssh_url)
-      end
-
-      url = REPOSITORY_URI_TEMPLATES[vcs_service] % {
-        account_name: md[:account_name],
-        repository_name: md[:repository_name],
-      }
-      return URI(url)
+      raise "unknown SCM service: #{repository_http_or_ssh_url}"
     end
 
     def determine_commit_id(path)
@@ -123,12 +79,10 @@ module Dpu
       }
       return same_content_version
     end
-
-    def determine_fragment(vcs_service, start_line_number, end_line_number)
-      return nil if !start_line_number
-      return "L#{start_line_number}" if !end_line_number || start_line_number == end_line_number
-      return "L#{start_line_number}-L#{end_line_number}" if vcs_service == :github
-      return "L#{start_line_number}-#{end_line_number}" if vcs_service == :sourcehut
-    end
   end
 end
+
+require "dpu/scm_service"
+require "dpu/scm_service/base"
+require "dpu/scm_service/github"
+require "dpu/scm_service/sourcehut"
