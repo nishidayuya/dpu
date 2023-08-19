@@ -64,29 +64,29 @@ Then type `C-x L` to copy permanent URI. `C-y` to paste it.
 Here are some other examples of asynchronous dpu execution.
 
 ```emacs-lisp
-(defun my/get-permanent-link ()
-  (interactive)
-  (save-window-excursion
-    (let* ((buf (generate-new-buffer "*Dpu Command Result*"))
-           (kill-new-with-buffer-string (lambda (process signal)
-                                   (when (memq (process-status process) '(exit signal))
-                                     (with-current-buffer buf
-                                       (kill-new (buffer-string))
-                                       (message "Copied: %s" (current-kill 0 t))))))
-           (proc (progn
-                   (async-shell-command
-                    (concat
-                     "dpu "
-                     buffer-file-name
-                     " "
-                     (number-to-string (line-number-at-pos (if (region-active-p) (region-beginning) nil)))
-                     (if mark-active (concat " " (number-to-string (- (line-number-at-pos (region-end)) 1))))
-                     ) buf)
-                    (get-buffer-process buf))))
-      (if (process-live-p proc)
-          (set-process-sentinel proc kill-new-with-buffer-string))
-      (run-with-timer 10 nil (lambda (buf) (kill-buffer buf)) buf))))
-(define-key global-map (kbd "C-x L") 'my/get-permanent-link)
+(define-key global-map (kbd "C-x L")
+  (lambda ()
+    (interactive)
+    (save-window-excursion
+      (let* ((buf (generate-new-buffer "*Dpu Command Result*"))
+             (kill-new-with-buffer-string (lambda (process signal)
+                                            (when (memq (process-status process) '(exit signal))
+                                              (with-current-buffer buf
+                                                (kill-new (buffer-string))
+                                                (message "Copied: %s" (current-kill 0 t))))))
+             (proc (progn
+                     (async-shell-command
+                      (concat
+                       "dpu "
+                       buffer-file-name
+                       " "
+                       (number-to-string (line-number-at-pos (if (region-active-p) (region-beginningion-beginning) nil)))
+                       (if mark-active (concat " " (number-to-string (- (line-number-at-pos (region-endd)) 1))))
+                       ) buf)
+                     (get-buffer-process buf))))
+        (if (process-live-p proc)
+            (set-process-sentinel proc kill-new-with-buffer-string))
+        (run-with-timer 10 nil (lambda (buf) (kill-buffer buf)) buf)))))
 ```
 
 ### Textbringer integration
