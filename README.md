@@ -39,6 +39,10 @@ $ dpu path_to_code start_line_number end_line_number
 
 Write following code to your `.emacs`, and evaluate it.
 
+<details>
+
+<summary>.emacs sample</summary>
+
 ```emacs-lisp
 (define-key global-map (kbd "C-x L")
   (lambda ()
@@ -75,6 +79,8 @@ Write following code to your `.emacs`, and evaluate it.
         )
       )))
 ```
+
+</details>
 
 Then type `C-x L` to copy permanent URI. `C-y` to paste it.
 
