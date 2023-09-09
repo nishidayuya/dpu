@@ -39,55 +39,54 @@ $ dpu path_to_code start_line_number end_line_number
 
 Write following code to your `.emacs`, and evaluate it.
 
+<details>
+
+<summary>.emacs sample</summary>
+
 ```emacs-lisp
 (define-key global-map (kbd "C-x L")
   (lambda ()
     (interactive)
-    (message
-     (concat
-      "Copied: "
-      (kill-new
-       (s-chomp
-        (shell-command-to-string
-         (concat
-          "dpu "
-          buffer-file-name
-          " "
-          (number-to-string (line-number-at-pos (region-beginning)))
-          (if mark-active (concat " " (number-to-string (line-number-at-pos (region-end)))))
-          )
-         )))))))
+    (save-window-excursion
+      (let* ((start-line-number (line-number-at-pos (if (region-active-p) (region-beginning))))
+             (end-line-number
+              (if mark-active
+                  (line-number-at-pos
+                   (+ (region-end)
+                      (if (= (line-beginning-position) (region-end)) -1 0)))
+                ))
+             (proc (apply
+                    #'start-process
+                    "dpu" "*Dpu Command Result*"
+                    "dpu" buffer-file-name
+                    (number-to-string start-line-number)
+                    (if end-line-number
+                        (list (number-to-string end-line-number)))
+                    ))
+             (kill-new-with-buffer-string
+              (lambda (process signal)
+                (when (memq (process-status process) '(exit signal))
+                  (let* ((buf (process-buffer process)))
+                    (with-current-buffer buf
+                      (kill-new (s-chomp (buffer-string)))
+                      (message "Copied: %s" (current-kill 0 t))
+                      (kill-buffer buf)
+                      )))))
+             )
+        (run-with-timer 10 nil (lambda (process) (kill-buffer (process-buffer process))) proc)
+        (if (process-live-p proc)
+            (set-process-sentinel proc kill-new-with-buffer-string))
+        )
+      )))
 ```
+
+</details>
 
 Then type `C-x L` to copy permanent URI. `C-y` to paste it.
 
-Here are some other examples of asynchronous dpu execution.
+---
 
-```emacs-lisp
-(defun my/get-permanent-link ()
-  (interactive)
-  (save-window-excursion
-    (let* ((buf (generate-new-buffer "*Dpu Command Result*"))
-           (kill-new-with-buffer-string (lambda (process signal)
-                                   (when (memq (process-status process) '(exit signal))
-                                     (with-current-buffer buf
-                                       (kill-new (buffer-string))
-                                       (message "Copied: %s" (current-kill 0 t))))))
-           (proc (progn
-                   (async-shell-command
-                    (concat
-                     "dpu "
-                     buffer-file-name
-                     " "
-                     (number-to-string (line-number-at-pos (if (region-active-p) (region-beginning) nil)))
-                     (if mark-active (concat " " (number-to-string (- (line-number-at-pos (region-end)) 1))))
-                     ) buf)
-                    (get-buffer-process buf))))
-      (if (process-live-p proc)
-          (set-process-sentinel proc kill-new-with-buffer-string))
-      (run-with-timer 10 nil (lambda (buf) (kill-buffer buf)) buf))))
-(define-key global-map (kbd "C-x L") 'my/get-permanent-link)
-```
+Original asynchronous execution idea is made by [@mk2](https://github.com/mk2) ([#20](https://github.com/nishidayuya/dpu/pull/20)). Thanks! :tada:
 
 ### Textbringer integration
 
