@@ -43,30 +43,6 @@ Write following code to your `.emacs`, and evaluate it.
 (define-key global-map (kbd "C-x L")
   (lambda ()
     (interactive)
-    (message
-     (concat
-      "Copied: "
-      (kill-new
-       (s-chomp
-        (shell-command-to-string
-         (concat
-          "dpu "
-          buffer-file-name
-          " "
-          (number-to-string (line-number-at-pos (region-beginning)))
-          (if mark-active (concat " " (number-to-string (line-number-at-pos (region-end)))))
-          )
-         )))))))
-```
-
-Then type `C-x L` to copy permanent URI. `C-y` to paste it.
-
-Here are some other examples of asynchronous dpu execution.
-
-```emacs-lisp
-(define-key global-map (kbd "C-x L")
-  (lambda ()
-    (interactive)
     (save-window-excursion
       (let* ((start-line-number (line-number-at-pos (if (region-active-p) (region-beginning))))
              (end-line-number
@@ -99,6 +75,12 @@ Here are some other examples of asynchronous dpu execution.
         )
       )))
 ```
+
+Then type `C-x L` to copy permanent URI. `C-y` to paste it.
+
+---
+
+Original asynchronous execution idea is made by [@mk2](https://github.com/mk2) ([#20](https://github.com/nishidayuya/dpu/pull/20)). Thanks! :tada:
 
 ### Textbringer integration
 
