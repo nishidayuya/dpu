@@ -11,7 +11,7 @@ module Dpu
   SCM_SERVICES = []
 
   class << self
-    def determine_permanent_uri(path_or_link, start_line_number: nil, end_line_number: nil)
+    def determine_permanent_uri(path_or_link, start_line_number: nil, end_line_number: nil, max_find_version: 20)
       path = path_or_link.realpath
       relative_path = determine_relative_path(path)
 
@@ -21,7 +21,7 @@ module Dpu
       permanent_uri_parts = [
         repository_uri,
         scm_service.ref_prefix,
-        find_same_content_version(path, relative_path) || determine_commit_id(path),
+        find_same_content_version(path, relative_path, max_find_version) || determine_commit_id(path),
         relative_path,
       ]
       permanent_uri = URI(permanent_uri_parts.join("/"))
@@ -65,12 +65,12 @@ module Dpu
       return commit_id
     end
 
-    def find_same_content_version(path, relative_path_from_repository_root)
+    def find_same_content_version(path, relative_path_from_repository_root, max_find_version)
       stdout = run_command(*%w[git tag --list [0-9]* v[0-9]*], chdir: path.dirname)
       versions = VersionSorter.sort(stdout.each_line(chomp: true).select(&:ascii_only?))
 
       content_in_head = path.read
-      same_content_version = versions.reverse_each.find { |version|
+      same_content_version = versions.reverse_each.take(max_find_version).find { |version|
         content_in_version, _stderr, _status = *Open3.capture3(
           *%W[git show #{version}:#{relative_path_from_repository_root}],
           chdir: path.dirname,
