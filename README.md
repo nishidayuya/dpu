@@ -68,13 +68,20 @@ Here are some other examples of asynchronous dpu execution.
   (lambda ()
     (interactive)
     (save-window-excursion
-      (let* ((args (if mark-active (list (number-to-string (- (line-number-at-pos (region-end)) 1)))))
+      (let* ((start-line-number (line-number-at-pos (if (region-active-p) (region-beginning))))
+             (end-line-number
+              (if mark-active
+                  (line-number-at-pos
+                   (+ (region-end)
+                      (if (= (line-beginning-position) (region-end)) -1 0)))
+                ))
              (proc (apply
                     #'start-process
                     "dpu" "*Dpu Command Result*"
                     "dpu" buffer-file-name
-                    (number-to-string (line-number-at-pos (if (region-active-p) (region-beginning) nil)))
-                    args
+                    (number-to-string start-line-number)
+                    (if end-line-number
+                        (list (number-to-string end-line-number)))
                     ))
              (kill-new-with-buffer-string
               (lambda (process signal)
