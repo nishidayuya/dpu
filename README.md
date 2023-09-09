@@ -103,6 +103,10 @@ end
 GLOBAL_MAP.define_key("\C-xL", :copy_permanent_uri)
 ```
 
+### Visual Studio Code integration
+
+See [Copy permanent URL](https://marketplace.visualstudio.com/items?itemName=nishidayuya.copy-permanent-url) extension on Visual Studio Marketplace.
+
 ### Other editor integration
 
 Write pull-request or issue, please!
