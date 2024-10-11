@@ -8,6 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Yuya.Nishida."]
   spec.email = ["yuya@j96.org"]
 
+  spec.licenses = %w[X11]
   spec.summary = "determine permanent URI"
   spec.homepage = "https://github.com/nishidayuya/dpu"
   spec.required_ruby_version = ">= 2.6.0"
