@@ -40,7 +40,6 @@ jobs:
         shell: bash
         run: |
           set -eux
-          gem update --system
           bundle config path vendor/bundle
           bundle install --jobs "${{ steps.system-info.outputs.cpu-core }}" --retry 3
       - name: Run tests
